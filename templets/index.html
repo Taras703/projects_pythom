@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4">🛒 Тестовая платежная система</h2>
+
+    <div class="row">
+        <!-- Левая колонка - Форма создания заказа -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>➕ Создать новый заказ</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="/create-order">
+                        <div class="mb-3">
+                            <label class="form-label">ID заказа (необязательно)</label>
+                            <input type="text" name="order_id" class="form-control"
+                                   placeholder="Оставьте пустым для автогенерации">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">💰 Сумма оплаты *</label>
+                            <input type="text" name="amount" class="form-control"
+                                   value="100.00" required placeholder="Например: 150.50">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">📝 Описание заказа *</label>
+                            <input type="text" name="description" class="form-control"
+                                   value="Тестовый заказ" required placeholder="Опишите что оплачиваем">
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">
+                            🎯 Создать заказ
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Правая колонка - Список заказов -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5>📋 Существующие заказы</h5>
+                </div>
+                <div class="card-body">
+                    {% if orders %}
+                        <div class="list-group">
+                            {% for order_id, order in orders.items() %}
+                            <div class="list-group-item mb-2">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6>Заказ #{{ order_id }}</h6>
+                                        <p class="mb-1">💰 <strong>{{ order.amount }} руб.</strong></p>
+                                        <p class="mb-1">📝 {{ order.description }}</p>
+                                        <span class="badge bg-{{
+                                            'success' if order.status == 'paid'
+                                            else 'warning' if order.status == 'pending'
+                                            else 'secondary'
+                                        }}">
+                                            Статус: {{ order.status }}
+                                        </span>
+                                    </div>
+                                    <form method="POST" action="/create-payment" class="mt-2">
+                                        <input type="hidden" name="order_id" value="{{ order_id }}">
+                                        <button type="submit" class="btn btn-primary btn-sm">
+                                            💳 Оплатить
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-center text-muted">Нет созданных заказов</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Инструкция -->
+    <div class="alert alert-info mt-4">
+        <h6>📋 Инструкция:</h6>
+        <ol class="mb-0">
+            <li>Заполните форму слева или используйте готовые заказы справа</li>
+            <li>Нажмите "Оплатить" - вас перенаправит в Робокассу</li>
+            <li>В тестовом режиме используйте карту: <code>4111 1111 1111 1111</code></li>
+            <li>После оплаты вернетесь на страницу успеха</li>
+        </ol>
+    </div>
+</div>
+{% endblock %}
